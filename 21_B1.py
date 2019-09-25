@@ -51,9 +51,13 @@ def zScoreNorm(data, args):
     return data
 
 def widthBin(data, args):
+    # Lấy index của các property được chỉ định
     propList = getPropIndex(data, ','.join(args.prop))
+    # Số lượng giỏ
     binCount = int(args.bin)
+    # Chuyển vị data để thuận tiện xử lý
     pData = [[row[i] for row in data] for i in range(len(data[0]))]
+    # Với mỗi property, tính độ rộng của giỏ, rồi chia các instance vào (thêm thuộc tính Bin)
     for prop in propList:
         propMin, propMax = min(pData[prop][1:]), max(pData[prop][1:])
         binRange = (propMax - propMin) / binCount
@@ -68,12 +72,17 @@ def widthBin(data, args):
     return data
 
 def depthBin(data, args):
+    # Lấy index của các property được chỉ định
     propList = getPropIndex(data, ','.join(args.prop))
+    # Số lượng giỏ
     binCount = int(args.bin)
     if binCount > len(data) - 1:
         print('No.bins is larger than No.instances.')
         sys.exit()
+    # Số phần tử trong mỗi giỏ
     eleCount = int((len(data) - 1) // binCount) + 1
+    # Với mỗi property, sort lại danh sách theo property này, gọi binEdge[i] là phần tử cuối cùng của giỏ thứ i
+    # Tìm các binEdge[i] sao cho eleCount - 1 <= binEdge[i] - binEdge[i - 1] <= eleCount
     for prop in propList:
         data[1:] = sorted(data[1:], key = lambda ele: ele[prop])
         binEdge = [0] * (binCount + 1)
@@ -129,6 +138,7 @@ def fillIn(data, args):
     return data
 
 def main():
+    # Tham số dòng lệnh
     parser = argparse.ArgumentParser(description = 'Data preprocessing')
     parser.add_argument('--input', help = 'path to input file', required = True)
     parser.add_argument('--output', help = 'path to output file', required = True)
