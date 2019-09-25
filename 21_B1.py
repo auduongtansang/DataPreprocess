@@ -75,6 +75,29 @@ def widthBin(data, command, propListString):
     return data
 
 def depthBin(data, command, propListString):
+    try:
+        propList = getPropIndex(data, propListString)
+    except Exception:
+        print('[Error] No such properties')
+        return []
+    binPos = command.index('--bin') + 1
+    binCount = int(command[binPos])
+    eleCount = int((len(data) - 1) // binCount) + 1
+    for prop in propList:
+        data[1:] = sorted(data[1:], key = lambda ele: ele[prop])
+        binEdge = [0] * (binCount + 1)
+        for binIndex in range(binCount):
+            binEdge[binIndex + 1] = min(eleCount * (binIndex + 1), len(data) - 1)
+        while True:
+            for binIndex in range(binCount, 1, -1):
+                if binEdge[binIndex] - binEdge[binIndex - 1] < eleCount - 1:
+                    binEdge[binIndex - 1] -= eleCount - 1 - (binEdge[binIndex] - binEdge[binIndex - 1])
+                    continue
+            break
+        for binIndex in range(binCount):
+            for inst in range(binEdge[binIndex], binEdge[binIndex + 1]):
+                data[inst + 1] += ['[{},{}]'.format(data[binEdge[binIndex] + 1][prop], data[binEdge[binIndex + 1]][prop])]
+        data[0] += [data[0][prop] + 'DepthBin']
     return data
 
 def remove(data, propListString):
